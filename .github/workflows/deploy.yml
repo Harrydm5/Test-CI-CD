@@ -7,17 +7,15 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Deploy to test server
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.TEST_SERVER_HOST }}
-        username: ${{ secrets.TEST_SERVER_USER }}
-        password: ${{ secrets.TEST_SERVER_PASSWORD }}
-        port: ${{ secrets.TEST_SERVER_PORT || 22 }}
+  build:
+      name: Build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Execute remote SSH commands using password
+          uses: appleboy/ssh-action@v1
+          with:
+            host: 192.168.2.218
+            username: lanwa
+            password: Welcome2025
+            port: 22
+            script: whoami
