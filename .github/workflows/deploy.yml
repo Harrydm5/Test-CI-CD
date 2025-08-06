@@ -1,0 +1,58 @@
+# .github/workflows/deploy.yml
+name: FastAPI Deployment
+
+on:
+  # Only trigger when code is merged to main branch
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to test server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.TEST_SERVER_HOST }}
+        username: ${{ secrets.TEST_SERVER_USER }}
+        password: ${{ secrets.TEST_SERVER_PASSWORD }}
+        port: ${{ secrets.TEST_SERVER_PORT || 22 }}
+        script: |
+          # Navigate to your project directory
+          cd /home/lanwa/
+          
+          echo "Pulling latest changes from dev branch..."
+          git fetch origin
+          git checkout v2.0
+          git pull origin v2.0
+          
+          echo " Installing/updating dependencies..."
+          pip install -r requirements.txt
+          
+          echo "Stopping FastAPI server..."
+          ./stop.sh
+          
+          echo "Starting FastAPI server in debug mode..."
+          ./start_debug.sh
+          
+          echo "Waiting for server to become available..."
+
+          max_retries=10
+          retry_interval=3
+          count=0
+          
+          until curl -f http://192.168.2.218:23330/ >/dev/null 2>&1; do
+            count=$((count + 1))
+            if [ $count -ge $max_retries ]; then
+              echo "Server failed to start after $((max_retries * retry_interval)) seconds. Check logs."
+              exit 1
+            fi
+            echo "Server not up yet. Retrying in $retry_interval seconds... ($count/$max_retries)"
+            sleep $retry_interval
+          done
+          
+          echo "Server started successfully!"
