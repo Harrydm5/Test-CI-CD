@@ -1,21 +1,29 @@
-# .github/workflows/deploy.yml
 name: FastAPI Deployment
 
 on:
-  # Only trigger when code is merged to main branch
+  # Only trigger when code is merged to the main branch
   push:
     branches: [main]
 
 jobs:
   build:
-      name: Build
-      runs-on: ubuntu-latest
-      steps:
-        - name: Execute remote SSH commands using password
-          uses: appleboy/ssh-action@v1.2.2
-          with:
-            host: 192.168.2.218
-            username: lanwa
-            password: Welcome2025
-            port: 22
-            script: whoami
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH key
+        run: |
+          # Create .ssh directory if it doesn't exist
+          mkdir -p ~/.ssh
+          
+          # Add the SSH private key to the ssh agent
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Add the server's SSH host to known_hosts to prevent SSH prompts
+          ssh-keyscan -H 192.168.2.218 >> ~/.ssh/known_hosts
+
+      - name: Execute remote SSH commands
+        run: ssh -i ~/.ssh/id_rsa lanwa@192.168.2.218 "whoami"
