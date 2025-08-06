@@ -17,13 +17,18 @@ jobs:
         run: |
           # Create .ssh directory if it doesn't exist
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh  # Ensure the .ssh directory has proper permissions
           
           # Add the SSH private key to the ssh agent
-          echo "${{ secrets.TEST_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set proper permissions for the private key
           
-          # Add the server's SSH host to known_hosts to prevent SSH prompts
+          # Add the server's SSH host to known_hosts
+          echo "Adding remote server's SSH host to known_hosts"
           ssh-keyscan -H 192.168.2.218 >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts  # Set permissions for the known_hosts file
 
-      - name: Execute remote SSH commands
-        run: ssh -i ~/.ssh/id_rsa lanwa@192.168.2.218 "whoami"
+      - name: Execute remote SSH command
+        run: |
+          echo "Testing SSH connection"
+          ssh -i ~/.ssh/id_rsa lanwa@192.168.2.218 "whoami"
