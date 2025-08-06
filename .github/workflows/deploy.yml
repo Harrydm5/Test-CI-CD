@@ -12,7 +12,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: Execute remote SSH commands using password
-          uses: appleboy/ssh-action@v1
+          uses: appleboy/ssh-action@v1.2.2
           with:
             host: 192.168.2.218
             username: lanwa
