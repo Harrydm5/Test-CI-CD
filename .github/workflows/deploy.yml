@@ -19,7 +19,7 @@ jobs:
           mkdir -p ~/.ssh
           
           # Add the SSH private key to the ssh agent
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.TEST_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
           # Add the server's SSH host to known_hosts to prevent SSH prompts
