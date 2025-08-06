@@ -11,23 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4  # Updated to latest version
+        
       - name: Set up SSH key
         run: |
           # Create .ssh directory if it doesn't exist
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh  # Ensure the .ssh directory has proper permissions
+          chmod 700 ~/.ssh
           
-          # Add the SSH private key to the ssh agent
+          # Add the SSH private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa  # Set proper permissions for the private key
+          chmod 600 ~/.ssh/id_rsa
           
           # Add the server's SSH host to known_hosts
           echo "Adding remote server's SSH host to known_hosts"
           ssh-keyscan -H 192.168.2.218 >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts  # Set permissions for the known_hosts file
-
+          chmod 644 ~/.ssh/known_hosts
+          
+          # Start ssh-agent and add the key
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+          
       - name: Execute remote SSH command
         run: |
           echo "Testing SSH connection"
