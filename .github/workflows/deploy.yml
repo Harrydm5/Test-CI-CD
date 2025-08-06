@@ -15,6 +15,6 @@ jobs:
           with:
             host: 192.168.2.218
             username: lanwa
-            key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+            password: Welcome2025
             port: 22
             script: whoami
